@@ -10,7 +10,7 @@ import numpy as np
 import torch
 from facenet_pytorch import MTCNN
 from app.faceparsing import process_image
-from app.model import predict_image
+from app.model import predict_image, load_model
 import asyncio
 
 app = FastAPI()
@@ -30,16 +30,10 @@ logger = logging.getLogger(__name__)
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 mtcnn = MTCNN(keep_all=True, device=device)
 
-async def load_model():
-    state_dict_path = "./app/model/resnet34_model.pth"
-    deep_learning_model = models.resnet34(pretrained=False)
-    deep_learning_model.fc = nn.Linear(deep_learning_model.fc.in_features, 1)
-    deep_learning_model.load_state_dict(torch.load(state_dict_path, map_location=device))
-    deep_learning_model.to(device)
-    deep_learning_model.eval()
-    return deep_learning_model
-
-deep_learning_model = asyncio.get_event_loop().run_until_complete(load_model())
+@app.on_event("startup")
+async def startup_event():
+    global deep_learning_model
+    deep_learning_model = await load_model()
 
 @app.post("/check_face")
 async def check_face(image: UploadFile = File(...)):

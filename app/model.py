@@ -5,7 +5,6 @@ from PIL import Image
 import numpy as np
 import os
 import gdown
-import asyncio
 
 # URL ของโมเดลบน Google Drive
 MODEL_URL = "https://drive.google.com/uc?id=1qTzRho4zqzXcEdZIX_7bkLs4s6yiu0DN"
@@ -26,7 +25,6 @@ async def load_model():
     return deep_learning_model
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-deep_learning_model = asyncio.get_event_loop().run_until_complete(load_model())
 
 def predict_image(image_array):
     preprocess = transforms.Compose([
