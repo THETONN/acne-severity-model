@@ -5,14 +5,12 @@ import shutil
 from PIL import Image
 import os
 import sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from faceparsing import process_image
-from model import predict_image, load_model
 import logging
 import numpy as np
 import torch
 from facenet_pytorch import MTCNN
+from faceparsing import process_image
+from model import predict_image
 
 app = FastAPI()
 
