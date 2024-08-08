@@ -18,17 +18,13 @@ async def load_model():
     await download_model()
     state_dict_path = "./app/model/resnet34_model.pth"
     deep_learning_model = models.resnet34(weights=None)
-    deep_learning_model.fc = nn.Linear(deep_learning_model.fc.in_features, 1)
     
-    # ตรวจสอบ keys ใน state_dict ที่โหลด
+    # Adjust the fully connected layer to match the model's state_dict
+    deep_learning_model.fc = nn.Linear(deep_learning_model.fc.in_features, 3)
+    
+    # Load state_dict with weights_only=True for security
     state_dict = torch.load(state_dict_path, map_location=device)
-    new_state_dict = {}
-    for key, value in state_dict.items():
-        new_key = key.replace('fc.1.', 'fc.')
-        new_key = new_key.replace('fc.4.', 'fc.')
-        new_state_dict[new_key] = value
-
-    deep_learning_model.load_state_dict(new_state_dict)
+    deep_learning_model.load_state_dict(state_dict)
     deep_learning_model.to(device)
     deep_learning_model.eval()
     return deep_learning_model
