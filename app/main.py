@@ -9,7 +9,7 @@ import logging
 import numpy as np
 import torch
 from facenet_pytorch import MTCNN
-from faceparsing import process_image
+from app.faceparsing import process_image
 from model import predict_image
 import asyncio
 
