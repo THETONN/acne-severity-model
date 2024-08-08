@@ -34,6 +34,7 @@ mtcnn = MTCNN(keep_all=True, device=device)
 async def startup_event():
     global deep_learning_model
     deep_learning_model = await load_model()
+    
 
 @app.post("/check_face")
 async def check_face(image: UploadFile = File(...)):
