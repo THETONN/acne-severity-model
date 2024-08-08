@@ -4,4 +4,4 @@ __pycache__/
 uploads/
 processed/
 model/resnet34_model.pth
-requirements.txt
+# requirements.txt

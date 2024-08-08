@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pillow
+numpy
+torch
+torchvision
+facenet-pytorch
+transformers
+requests
+gdown
+python-multipart
