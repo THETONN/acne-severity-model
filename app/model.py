@@ -20,10 +20,17 @@ async def load_model():
     deep_learning_model = models.resnet34(weights=None)
     
     # Adjust the fully connected layer to match the model's state_dict
-    deep_learning_model.fc = nn.Linear(deep_learning_model.fc.in_features, 3)
+    num_features = deep_learning_model.fc.in_features
+    deep_learning_model.fc = nn.Sequential(
+        nn.Dropout(0.5),
+        nn.Linear(num_features, 512),
+        nn.ReLU(),
+        nn.Dropout(0.5),
+        nn.Linear(512, 3)
+    )
     
     # Load state_dict with weights_only=True for security
-    state_dict = torch.load(state_dict_path, map_location=device, weights_only=True)
+    state_dict = torch.load(state_dict_path, map_location=device)
     
     deep_learning_model.load_state_dict(state_dict)
     deep_learning_model.to(device)
