@@ -5,7 +5,6 @@ from PIL import Image
 import numpy as np
 import os
 import gdown
-from collections import OrderedDict
 
 # URL ของโมเดลบน Google Drive
 MODEL_URL = "https://drive.google.com/uc?id=1qTzRho4zqzXcEdZIX_7bkLs4s6yiu0DN"
@@ -33,18 +32,7 @@ async def load_model():
     # Load state_dict with weights_only=True for security
     state_dict = torch.load(state_dict_path, map_location=device)
     
-    # Mapping keys to match the model's state_dict
-    new_state_dict = OrderedDict()
-    for k, v in state_dict.items():
-        if k.startswith("fc.1."):
-            new_key = k.replace("fc.1.", "fc.1.")
-        elif k.startswith("fc.4."):
-            new_key = k.replace("fc.4.", "fc.4.")
-        else:
-            new_key = k
-        new_state_dict[new_key] = v
-
-    deep_learning_model.load_state_dict(new_state_dict)
+    deep_learning_model.load_state_dict(state_dict)
     deep_learning_model.to(device)
     deep_learning_model.eval()
     return deep_learning_model
