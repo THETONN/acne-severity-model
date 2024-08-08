@@ -10,13 +10,11 @@ import asyncio
 # URL ของโมเดลบน Google Drive
 MODEL_URL = "https://drive.google.com/uc?id=1qTzRho4zqzXcEdZIX_7bkLs4s6yiu0DN"
 
-# ดาวน์โหลดโมเดลถ้าไฟล์ไม่อยู่
 async def download_model():
     output = './app/model/resnet34_model.pth'
     if not os.path.exists(output):
         gdown.download(MODEL_URL, output, quiet=False)
 
-# โหลด state dictionary ของโมเดล
 async def load_model():
     await download_model()
     state_dict_path = "./app/model/resnet34_model.pth"
@@ -27,10 +25,9 @@ async def load_model():
     deep_learning_model.eval()
     return deep_learning_model
 
-# เรียกใช้งานโมเดล
-deep_learning_model = asyncio.run(load_model())
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+deep_learning_model = asyncio.get_event_loop().run_until_complete(load_model())
 
-# ฟังก์ชันการทำนายภาพ
 def predict_image(image_array):
     preprocess = transforms.Compose([
         transforms.Resize(256),
