@@ -23,7 +23,8 @@ async def load_model():
     deep_learning_model.fc = nn.Linear(deep_learning_model.fc.in_features, 3)
     
     # Load state_dict with weights_only=True for security
-    state_dict = torch.load(state_dict_path, map_location=device)
+    state_dict = torch.load(state_dict_path, map_location=device, weights_only=True)
+    
     deep_learning_model.load_state_dict(state_dict)
     deep_learning_model.to(device)
     deep_learning_model.eval()
