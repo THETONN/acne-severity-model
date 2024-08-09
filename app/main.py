@@ -30,12 +30,17 @@ logger = logging.getLogger(__name__)
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 mtcnn = MTCNN(keep_all=True, device=device)
 
+global deep_learning_model
+deep_learning_model = None
+
 @app.on_event("startup")
 async def startup_event():
     global deep_learning_model
     deep_learning_model = await load_model()
-    
-
+    logger.info("Deep learning model loaded successfully")
+@app.get("/")
+async def read_root():
+    return {"message": "Hello World"}
 @app.post("/check_face")
 async def check_face(image: UploadFile = File(...)):
     try:
@@ -46,11 +51,11 @@ async def check_face(image: UploadFile = File(...)):
 
         img = Image.open(file_location)
         boxes, _ = mtcnn.detect(img)
-        
+
         if boxes is None or len(boxes) == 0:
             logger.error("No face detected in the uploaded image")
             raise HTTPException(status_code=400, detail="No face detected in the uploaded image")
-        
+
         return JSONResponse(content={"message": "Face detected"})
     except Exception as e:
         logger.error(f"An error occurred: {e}")
@@ -67,14 +72,14 @@ async def predict(image: UploadFile = File(...)):
 
         img = Image.open(file_location)
         boxes, _ = mtcnn.detect(img)
-        
+
         if boxes is None or len(boxes) == 0:
             logger.error("No face detected in the uploaded image")
             raise HTTPException(status_code=400, detail="No face detected in the uploaded image")
-        
+
         segmented_image = process_image(file_location)
         logger.info("Image segmented successfully")
-        
+
         if not os.path.exists('processed'):
             os.makedirs('processed')
 
@@ -82,8 +87,8 @@ async def predict(image: UploadFile = File(...)):
         Image.fromarray(segmented_image).save(processed_image_path)
         logger.info(f"Segmented image saved to {processed_image_path}")
 
-        prediction = predict_image(np.array(segmented_image))
-        logger.info(f"Prediction completed with result: {prediction}") 
+        prediction = predict_image(np.array(segmented_image), deep_learning_model)
+        logger.info(f"Prediction completed with result: {prediction}")
 
         result = {"prediction": int(prediction)}
         return JSONResponse(content=result)
@@ -91,6 +96,13 @@ async def predict(image: UploadFile = File(...)):
         logger.error(f"An error occurred: {e}")
         return JSONResponse(status_code=500, content={"error": str(e)})
 
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    import os
+
+    port = int(os.getenv("PORT", default=5000))
+    print(f"Starting server on port {port}")
+    uvicorn.run(app, host="0.0.0.0", port=port)
+
+
