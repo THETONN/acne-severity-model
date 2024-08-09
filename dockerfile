@@ -12,10 +12,10 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Make the port defined by Railway available to the world outside this container
-EXPOSE $PORT
+EXPOSE 5000
 
 # Define environment variables securely
 ENV PYTHONUNBUFFERED=1
 
 # Run app.py when the container launches
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "$PORT"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5000"]
