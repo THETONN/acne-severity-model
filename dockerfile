@@ -15,11 +15,10 @@ RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     && rm -rf /var/lib/apt/lists/*
 # Make the port defined by Railway available to the world outside this container
-EXPOSE 5000
+EXPOSE 8080
 
 # Define environment variables securely
 ENV PYTHONUNBUFFERED=1
 
 # Run app.py when the container launches
-# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5000"]
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]

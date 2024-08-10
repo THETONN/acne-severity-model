@@ -98,12 +98,12 @@ async def predict(image: UploadFile = File(...)):
 
 
 
+import os
+
 if __name__ == "__main__":
     import uvicorn
-    import os
-
-    # Get the PORT environment variable
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("PORT", 8080))
     uvicorn.run(app, host="0.0.0.0", port=port)
+
 
 
