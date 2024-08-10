@@ -103,7 +103,7 @@ if __name__ == "__main__":
     import os
 
     # Get the PORT environment variable
-    port = int(os.getenv("PORT", 5000))
+    port = int(os.getenv("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
 
 
