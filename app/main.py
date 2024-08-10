@@ -97,6 +97,7 @@ async def predict(image: UploadFile = File(...)):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
+
 if __name__ == "__main__":
     import uvicorn
     import os
