@@ -90,6 +90,10 @@ async def predict(image: UploadFile = File(...)):
         prediction = predict_image(np.array(segmented_image), deep_learning_model)
         logger.info(f"Prediction completed with result: {prediction}")
 
+        # ลบไฟล์จากโฟลเดอร์ uploads และ processed หลังการประมวลผลเสร็จสิ้น
+        os.remove(file_location)
+        os.remove(processed_image_path)
+
         result = {"prediction": int(prediction)}
         return JSONResponse(content=result)
     except Exception as e:
