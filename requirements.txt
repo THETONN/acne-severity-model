@@ -9,3 +9,5 @@ transformers
 requests
 gdown
 python-multipart
+pillow-heif==0.7.0
+aiofiles
