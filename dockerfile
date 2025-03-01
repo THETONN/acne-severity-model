@@ -14,10 +14,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
-# Make the port defined by Railway available to the world outside this container
+
+# Make port 8080 available to the world outside this container
 EXPOSE 8080
 
-# Define environment variables securely
+# Define environment variable
 ENV PYTHONUNBUFFERED=1
 
 # Run app.py when the container launches

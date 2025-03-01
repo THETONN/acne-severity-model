@@ -5,47 +5,50 @@ from PIL import Image
 import numpy as np
 import os
 import gdown
+from app.config import Settings
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+class ModelManager:
+    def __init__(self):
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.model = None
 
-MODEL_URL = "https://drive.google.com/uc?id=1qTzRho4zqzXcEdZIX_7bkLs4s6yiu0DN"
+    @classmethod
+    async def create(cls):
+        self = cls()
+        await self.download_model()
+        await self.load_model()
+        return self
 
-async def download_model():
-    output = './app/model/resnet34_model.pth'
-    if not os.path.exists(output):
-        gdown.download(MODEL_URL, output, quiet=False)
-deep_learning_model = None
-async def load_model():
-    global deep_learning_model
-    await download_model()
-    state_dict_path = "./app/model/resnet34_model.pth"
-    deep_learning_model = models.resnet34(weights=None)
+    async def download_model(self):
+        output = Settings.MODEL_PATH
+        if not os.path.exists(output):
+            gdown.download(Settings.MODEL_URL, output, quiet=False)
 
-    num_features = deep_learning_model.fc.in_features
-    deep_learning_model.fc = nn.Sequential(
-        nn.Dropout(0.5),
-        nn.Linear(num_features, 512),
-        nn.ReLU(),
-        nn.Dropout(0.5),
-        nn.Linear(512, 3)
-    )
+    async def load_model(self):
+        self.model = models.resnet34(weights=None)
+        num_features = self.model.fc.in_features
+        self.model.fc = nn.Sequential(
+            nn.Dropout(0.5),
+            nn.Linear(num_features, 512),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(512, 3)
+        )
+        state_dict = torch.load(Settings.MODEL_PATH, map_location=self.device, weights_only=True)
+        self.model.load_state_dict(state_dict)
+        self.model.to(self.device)
+        self.model.eval()
 
-    state_dict = torch.load(state_dict_path, map_location=device, weights_only=True)
-    deep_learning_model.load_state_dict(state_dict)
-    deep_learning_model.to(device)
-    deep_learning_model.eval()
-    return deep_learning_model
+    async def predict(self, image_array):
+        preprocess = transforms.Compose([
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+        input_tensor = preprocess(Image.fromarray(image_array)).unsqueeze(0)
+        input_tensor = input_tensor.to(self.device)
 
-def predict_image(image_array, deep_learning_model):
-    preprocess = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
-    input_tensor = preprocess(Image.fromarray(image_array)).unsqueeze(0)
-    input_tensor = input_tensor.to(device)
-
-    with torch.no_grad():
-        output = deep_learning_model(input_tensor)
-    return output.argmax().item()
+        with torch.no_grad():
+            output = self.model(input_tensor)
+        return output.argmax().item()
